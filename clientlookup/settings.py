@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'core'
+    'core',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +94,16 @@ DATABASES = {
         "PASSWORD": os.environ.get('DATABASE_PASSWORD', 'mypassword'),
         "HOST": os.environ.get('DATABASE_HOST', '127.0.0.1'),
         "PORT": os.environ.get('DATABASE_PORT', '3306'),
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 
