@@ -26,7 +26,7 @@ local function redis_keepalive(red)
         return
     end
 
-    local ok, err = red:set_keepalive(10_000, 100)
+    local ok, err = red:set_keepalive(10000, 100)
     if not ok then
         ngx.log(ngx.ERR, "Failed to set Redis keepalive: ", err)
     end
@@ -66,16 +66,16 @@ end
 --- @return string|nil
 local function get_stack_url(username, auth_service_host)
     if not username then
-        goto error_exit
+        return nil
     end
 
     -- Redis cache
     local red = get_redis()
     if not red then
-        goto error_exit
+        return nil
     end
 
-    local cache_key = "user:" .. username
+    local cache_key = "username:" .. username
     local stack_host, err = red:hget(cache_key, "stack_host")
 
     if stack_host and stack_host ~= ngx.null then
@@ -88,7 +88,7 @@ local function get_stack_url(username, auth_service_host)
     if not auth_service_host then
         ngx.log(ngx.ERR, "No authentication microservice host configured")
         redis_keepalive(red)
-        goto error_exit
+        return nil
     end
 
     local httpc = http.new()
@@ -107,7 +107,7 @@ local function get_stack_url(username, auth_service_host)
     if not res then
         ngx.log(ngx.ERR, "Auth service request failed: ", err)
         redis_keepalive(red)
-        goto error_exit
+        return nil
     end
 
     if res.status == 200 then
@@ -115,7 +115,7 @@ local function get_stack_url(username, auth_service_host)
         if not decoded_body then
             ngx.log(ngx.ERR, "JSON decode failed: ", err)
             redis_keepalive(red)
-            goto error_exit
+            return nil
         end
 
         stack_host = decoded_body

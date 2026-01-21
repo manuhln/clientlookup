@@ -13,14 +13,9 @@ from django.core.cache import cache
 # from requests.auth import HTTPBasicAuth
 
 
-@api_view(http_method_names=['POST'])
-def authenticate(request):
+@api_view(http_method_names=['GET'])
+def authenticate(request, username):
     try:
-        serializer = AuthenticationSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        # password = serializer.validated_data['password']
-        
         # Check if the user already exists in the cache
         try:
             cached_user = WazoUserCache.objects.get(username=username)
