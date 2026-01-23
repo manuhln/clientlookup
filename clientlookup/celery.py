@@ -1,12 +1,10 @@
+import os
 from celery import Celery
-from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
-app = Celery('clientlookup', broker='redis://localhost:6379/0')
+# Set Django settings module
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'clientlookup.settings')
 
-# Optional configuration, see the application user guide.
-app.conf.update(
-    result_expires=3600,
-)
+app = Celery('clientlookup')
 
-if __name__ == '__main__':
-    app.start()
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
