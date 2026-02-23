@@ -220,11 +220,6 @@ function _M.stack_url_from_query(auth_service_host)
 
     ngx.log(ngx.INFO, "No stack_url found - returning 204")
 
-    ngx.header.access_control_allow_origin = ngx.var.http_origin
-    ngx.header.content_type = "application/json"
-    ngx.header.vary = "Origin"
-    ngx.header.x_powered_by = "wazo-auth"
-
     return ngx.exit(ngx.HTTP_NO_CONTENT)
 end
 

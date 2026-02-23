@@ -63,5 +63,17 @@ def authenticate(request, username):
         
 @api_view(http_method_names=['GET'])
 def reset_password(request):
-    pass
+    try:
+        # Check if the user already exists in the cache
+        username = request.query_params.get('email')
+        try:
+            cached_user = WazoUserCache.objects.get(username=username)
+            # cache it in redis
+            cache_key = f"username:{username}"
+            cache.set(cache_key, cached_user.platform_hostname, timeout=60*10)
+            return Response(data=cached_user.platform_hostname, status=status.HTTP_200_OK)
+        except WazoUserCache.DoesNotExist:
+            return Response(data='error', status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
